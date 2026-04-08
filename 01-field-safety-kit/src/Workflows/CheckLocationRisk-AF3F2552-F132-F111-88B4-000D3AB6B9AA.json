@@ -1,0 +1,288 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_fsk-5ffield-20safety-20connector-5f326bd6ce720125c2": {
+        "runtimeSource": "invoker",
+        "connection": {
+          "connectionReferenceLogicalName": "fsk_sharedfsk5ffield20safety20connector5f326bd6ce720125c2_4fdc5"
+        },
+        "api": {
+          "name": "shared_fsk-5ffield-20safety-20connector-5f326bd6ce720125c2",
+          "logicalName": "fsk_5Ffield-20safety-20connector"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "61886ce1-6e89-48bb-b141-62200cc1ccf5"
+          },
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "number": {
+                  "title": "Location Latitude",
+                  "type": "number",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter a number",
+                  "x-ms-content-hint": "NUMBER"
+                },
+                "number_1": {
+                  "title": "Location Longitude",
+                  "type": "number",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter a number",
+                  "x-ms-content-hint": "NUMBER"
+                },
+                "date": {
+                  "title": "Start Date",
+                  "type": "string",
+                  "format": "date",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter or select a date (YYYY-MM-DD)",
+                  "x-ms-content-hint": "DATE"
+                },
+                "date_1": {
+                  "title": "End Date",
+                  "type": "string",
+                  "format": "date",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter or select a date (YYYY-MM-DD)",
+                  "x-ms-content-hint": "DATE"
+                }
+              },
+              "required": [
+                "number",
+                "number_1",
+                "date",
+                "date_1"
+              ]
+            }
+          },
+          "runtimeConfiguration": {
+            "secureData": {
+              "properties": [
+                "inputs"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Get_Nearby_Earthquakes": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "fae32409-1380-4880-bc1e-03cf9204bee5"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_fsk-5ffield-20safety-20connector-5f326bd6ce720125c2",
+              "operationId": "GetNearbyEarthquakes",
+              "apiId": ""
+            },
+            "parameters": {
+              "latitude": "@triggerBody()['number']",
+              "longitude": "@triggerBody()['number_1']",
+              "maxradiuskm": 500,
+              "starttime": "@triggerBody()['date']",
+              "endtime": "@triggerBody()['date_1']",
+              "minmagnitude": 4,
+              "limit": 20
+            },
+            "authentication": {
+              "type": "Raw",
+              "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+            },
+            "retryPolicy": {
+              "type": "exponential",
+              "count": 5,
+              "interval": "PT5S"
+            }
+          }
+        },
+        "Is_successful_response": {
+          "actions": {
+            "Has_Earthquake": {
+              "actions": {
+                "Has_earthquakes_response": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "53316a7a-276c-4a46-a116-d365a60319a8"
+                  },
+                  "type": "Compose",
+                  "inputs": {
+                    "flag": true,
+                    "count": "@length(body('Get_Nearby_Earthquakes')?['events'])",
+                    "message": "@{length(body('Get_Nearby_Earthquakes')?['events'])} earthquake(s) detected within 500km between @{triggerBody()['date']} and @{triggerBody()['date_1']} ",
+                    "events": "@outputs('Get_Nearby_Earthquakes')?['body/events']"
+                  }
+                },
+                "Has_earthquakes_HTTP_response": {
+                  "runAfter": {
+                    "Has_earthquakes_response": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "e622ae4d-85d2-4660-9b3f-4bb6bde34245"
+                  },
+                  "type": "Response",
+                  "kind": "Http",
+                  "inputs": {
+                    "statusCode": 200,
+                    "body": "@outputs('Has_earthquakes_response')",
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "flag": {
+                          "type": "boolean"
+                        },
+                        "count": {
+                          "type": "integer"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "events": {
+                          "type": "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {},
+              "else": {
+                "actions": {
+                  "Has_no_earthquake_response": {
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "62049968-8847-463c-8552-86eed11844b7"
+                    },
+                    "type": "Compose",
+                    "inputs": {
+                      "flag": false,
+                      "count": 0,
+                      "message": "No seismic activity detected within 500km for the selected period",
+                      "events": []
+                    }
+                  },
+                  "Has_no_earthquake_HTTP_response": {
+                    "runAfter": {
+                      "Has_no_earthquake_response": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "711e3b8c-df54-4373-ae7a-6f9c42d387a8"
+                    },
+                    "type": "Response",
+                    "kind": "Http",
+                    "inputs": {
+                      "statusCode": 200,
+                      "body": "@outputs('Has_no_earthquake_response')",
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "flag": {
+                            "type": "boolean"
+                          },
+                          "count": {
+                            "type": "integer"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "events": {
+                            "type": "array"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "greater": [
+                  "@length(body('Get_Nearby_Earthquakes')?['events'])\r\n",
+                  0
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "fe5929c2-fac0-4f56-8c99-b63aa92169d2"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Get_Nearby_Earthquakes": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {
+              "Unreachable_API_response": {
+                "runAfter": {},
+                "metadata": {
+                  "operationMetadataId": "256343be-0db9-4e4c-bc61-1f04b9e6a997"
+                },
+                "type": "Compose",
+                "inputs": {
+                  "flag": null,
+                  "count": null,
+                  "message": " Unable to retrieve hazard data. ",
+                  "events": null
+                }
+              },
+              "Unreachable_API_HTTP_response": {
+                "runAfter": {
+                  "Unreachable_API_response": [
+                    "Succeeded"
+                  ]
+                },
+                "metadata": {
+                  "operationMetadataId": "2a4da4e7-bc13-4da2-af32-a81652986264"
+                },
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                  "statusCode": 500,
+                  "body": "@outputs('Unreachable_API_response')"
+                }
+              }
+            }
+          },
+          "expression": {
+            "equals": [
+              "@outputs('Get_Nearby_Earthquakes')['statusCode']",
+              200
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3beea747-5ec1-4bd4-a5af-b74fbe9d7ec6"
+          },
+          "type": "If"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

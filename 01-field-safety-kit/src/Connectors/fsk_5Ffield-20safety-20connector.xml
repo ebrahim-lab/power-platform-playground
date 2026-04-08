@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Connector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <connectorid>1134dc3d-3e25-40dc-b470-fbf26ee7ade2</connectorid>
+  <description>A Power Platform custom connector for location-based hazard detection, designed for Field Service dispatch scenarios.
+The core problem: before sending a field engineer to a location, you want to know if anything dangerous has happened nearby recently, natural disasters, conflict events, infrastructure failures. This connector brings that data into Power Platform so it can be used inside flows, model-driven apps, and work order routing logic.</description>
+  <displayname>Field Safety Connector</displayname>
+  <iconbrandcolor>#ece81a</iconbrandcolor>
+  <name>fsk_5Ffield-20safety-20connector</name>
+  <connectortype>1</connectortype>
+  <scriptoperations>["GetNearbyEarthquakes"]</scriptoperations>
+  <openapidefinition>/Connector/fsk_5Ffield-20safety-20connector_openapidefinition.json</openapidefinition>
+  <connectionparameters>/Connector/fsk_5Ffield-20safety-20connector_connectionparameters.json</connectionparameters>
+  <policytemplateinstances>/Connector/fsk_5Ffield-20safety-20connector_policytemplateinstances.json</policytemplateinstances>
+  <customcodeblobcontent>/Connector/fsk_5Ffield-20safety-20connector_customcodeblobcontent.csx</customcodeblobcontent>
+  <iconblob>/Connector/fsk_5Ffield-20safety-20connector_iconblob.Png</iconblob>
+</Connector>

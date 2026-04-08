@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26032.174" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26032.00174">
+  <Entities />
+  <Roles />
+  <Workflows />
+  <FieldSecurityProfiles />
+  <Templates />
+  <EntityMaps />
+  <EntityRelationships />
+  <OrganizationSettings />
+  <optionsets />
+  <CustomControls />
+  <EntityDataProviders />
+  <Connectors />
+  <connectionreferences>
+    <connectionreference connectionreferencelogicalname="fsk_sharedfsk5ffield20safety20connector5f326bd6ce720125c2_4fdc5">
+      <connectionreferencedisplayname>Field Safety Connector FieldSafetyKit-4fdc5</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_fsk-5ffield-20safety-20connector-5f326bd6ce720125c2</connectorid>
+      <customconnectorid>
+        <connectorid>1134dc3d-3e25-40dc-b470-fbf26ee7ade2</connectorid>
+      </customconnectorid>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+  </connectionreferences>
+  <Languages>
+    <Language>1033</Language>
+  </Languages>
+</ImportExportXml>
